@@ -2,32 +2,38 @@ package com.naziiru.jobapp.controller;
 
 import com.naziiru.jobapp.domain.Job;
 import com.naziiru.jobapp.services.JobService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class JobController {
-    private JobService jobService;
+    private final JobService jobService;
 
     public JobController(JobService jobService) {
         this.jobService = jobService;
     }
 
     @GetMapping("/jobs")
-    public List<Job> findAll() {
-        return jobService.findAllJobs();
+    public ResponseEntity<List<Job>> findAll() {
+        return ResponseEntity.ok(jobService.findAllJobs());
     }
 
     @PostMapping("/jobs")
-    public String createJob(@RequestBody Job newJob) {
+    public ResponseEntity<String> createJob(@RequestBody Job newJob) {
       jobService.createJob(newJob);
-        return "Job Added Succesfully";
+        return new ResponseEntity<>("Job Added Succesfully", HttpStatus.CREATED);
     }
 
     @GetMapping("jobs/{id}")
-    public Job getJobById(@PathVariable Long id)
+    public ResponseEntity<Job> getJobById(@PathVariable Long id)
     {
-        return jobService.getJobById(id);
+        Job job = jobService.getJobById(id);
+        if (job != null)
+            return new ResponseEntity<>(job, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
 }
